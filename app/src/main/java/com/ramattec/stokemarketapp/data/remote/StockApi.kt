@@ -4,11 +4,11 @@ import okhttp3.ResponseBody
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-interface StokeApi {
+interface StockApi {
 
     @GET("query?function=$FUNCTION_LISTING")
     suspend fun fetchStockList(
-        @Query("apikey") apikey: String
+        @Query("apikey") apikey: String = API_KEY
     ): ResponseBody
 
     companion object{
