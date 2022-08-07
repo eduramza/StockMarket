@@ -7,7 +7,7 @@ import com.ramattec.stokemarketapp.data.mapper.toCompanyListingEntity
 import com.ramattec.stokemarketapp.data.remote.StockApi
 import com.ramattec.stokemarketapp.domain.model.CompanyListing
 import com.ramattec.stokemarketapp.domain.repository.StockRepository
-import com.ramattec.stokemarketapp.util.Resource
+import com.ramattec.stokemarketapp.util.Outcome
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import retrofit2.HttpException
@@ -27,14 +27,14 @@ class StockRepositoryImpl @Inject constructor(
     override suspend fun fetchCompanyListing(
         fetchFromRemote: Boolean,
         query: String
-    ): Flow<Resource<List<CompanyListing>>> = flow {
-        emit(Resource.Loading(true))
+    ): Flow<Outcome<List<CompanyListing>>> = flow {
+        emit(Outcome.Loading(true))
         val localListings = dao.fetchCompanyListing(query)
-        emit(Resource.Success(data = localListings.map { it.toCompanyListing() }))
+        emit(Outcome.Success(data = localListings.map { it.toCompanyListing() }))
 
         val isDbEmpty = localListings.isEmpty() && query.isBlank()
         if (!isDbEmpty && !fetchFromRemote) {
-            emit(Resource.Loading(false))
+            emit(Outcome.Loading(false))
             return@flow
         }
 
@@ -42,18 +42,18 @@ class StockRepositoryImpl @Inject constructor(
             val response = api.fetchStockList()
             companyListingParser.parse(response.byteStream())
         } catch (e: IOException) {
-            emit(Resource.Failure("Couldn't load data from remote"))
+            emit(Outcome.Failure("Couldn't load data from remote"))
             null
         } catch (e: HttpException) {
-            emit(Resource.Failure("One Error occur!"))
+            emit(Outcome.Failure("One Error occur!"))
             null
         }
 
         remoteListing?.let { list ->
             dao.clearCompanyListing()
             dao.insertCompanyListing(list.map { it.toCompanyListingEntity() })
-            emit(Resource.Success(data = dao.fetchCompanyListing("").map { it.toCompanyListing() }))
-            emit(Resource.Loading(isLoading = false))
+            emit(Outcome.Success(data = dao.fetchCompanyListing("").map { it.toCompanyListing() }))
+            emit(Outcome.Loading(isLoading = false))
         }
     }
 }
