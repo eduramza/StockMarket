@@ -2,8 +2,10 @@ package com.ramattec.stokemarketapp.di
 
 import com.ramattec.stokemarketapp.data.csv.CSVParser
 import com.ramattec.stokemarketapp.data.csv.CompanyListingParser
+import com.ramattec.stokemarketapp.data.csv.IntraDayInfoParser
 import com.ramattec.stokemarketapp.data.repository.StockRepositoryImpl
 import com.ramattec.stokemarketapp.domain.model.CompanyListing
+import com.ramattec.stokemarketapp.domain.model.IntraDayInfo
 import com.ramattec.stokemarketapp.domain.repository.StockRepository
 import dagger.Binds
 import dagger.Module
@@ -26,4 +28,10 @@ abstract class RepositoryModule {
     abstract fun bindStockRepository(
         stockRepositoryImpl: StockRepositoryImpl
     ): StockRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindIntraDayParser(
+        intraDayInfoParser: IntraDayInfoParser
+    ): CSVParser<IntraDayInfo>
 }

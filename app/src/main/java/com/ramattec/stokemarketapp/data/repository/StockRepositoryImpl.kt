@@ -1,11 +1,15 @@
 package com.ramattec.stokemarketapp.data.repository
 
 import com.ramattec.stokemarketapp.data.csv.CSVParser
+import com.ramattec.stokemarketapp.data.csv.IntraDayInfoParser
 import com.ramattec.stokemarketapp.data.local.StockDatabase
+import com.ramattec.stokemarketapp.data.mapper.toCompanyInfo
 import com.ramattec.stokemarketapp.data.mapper.toCompanyListing
 import com.ramattec.stokemarketapp.data.mapper.toCompanyListingEntity
 import com.ramattec.stokemarketapp.data.remote.StockApi
+import com.ramattec.stokemarketapp.domain.model.CompanyInfo
 import com.ramattec.stokemarketapp.domain.model.CompanyListing
+import com.ramattec.stokemarketapp.domain.model.IntraDayInfo
 import com.ramattec.stokemarketapp.domain.repository.StockRepository
 import com.ramattec.stokemarketapp.util.Outcome
 import kotlinx.coroutines.flow.Flow
@@ -19,7 +23,8 @@ import javax.inject.Singleton
 class StockRepositoryImpl @Inject constructor(
     private val api: StockApi,
     db: StockDatabase,
-    private val companyListingParser: CSVParser<CompanyListing>
+    private val companyListingParser: CSVParser<CompanyListing>,
+    private val intraDayInfoParser: CSVParser<IntraDayInfo>
 ) : StockRepository {
 
     private val dao = db.stockDao
@@ -54,6 +59,33 @@ class StockRepositoryImpl @Inject constructor(
             dao.insertCompanyListing(list.map { it.toCompanyListingEntity() })
             emit(Outcome.Success(data = dao.fetchCompanyListing("").map { it.toCompanyListing() }))
             emit(Outcome.Loading(isLoading = false))
+        }
+    }
+
+    override suspend fun getIntraDayInfo(symbol: String): Outcome<List<IntraDayInfo>> {
+        return try {
+            val response = api.getIntraDayInfo(symbol)
+            val result = intraDayInfoParser.parse(response.byteStream())
+            Outcome.Success(result)
+        } catch (e: IOException){
+            e.printStackTrace()
+            Outcome.Failure("Couldn't load intraday info from remote")
+        } catch (e: HttpException){
+            e.printStackTrace()
+            Outcome.Failure("One Error Occur when get intraDayInfo")
+        }
+    }
+
+    override suspend fun getCompanyInfo(symbol: String): Outcome<CompanyInfo> {
+        return try {
+            val response = api.getCompanyOverview(symbol)
+            Outcome.Success(response.toCompanyInfo())
+        } catch (e: IOException){
+            e.printStackTrace()
+            Outcome.Failure("Couldn't load companyInfo info from remote")
+        } catch (e: HttpException){
+            e.printStackTrace()
+            Outcome.Failure("One Error Occur when get companyInfo")
         }
     }
 }
