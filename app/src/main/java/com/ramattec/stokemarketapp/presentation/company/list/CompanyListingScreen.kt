@@ -25,8 +25,8 @@ fun CompanyListingScreen(
     companyListingViewModel: CompanyListingViewModel = hiltViewModel()
 ) {
 
-    val swipeRefreshState =  rememberSwipeRefreshState(isRefreshing = companyListingViewModel.state.isRefreshing)
-    val state = companyListingViewModel.state
+    val swipeRefreshState =  rememberSwipeRefreshState(isRefreshing = companyListingViewModel.uiState.isRefreshing)
+    val state = companyListingViewModel.uiState
 
     Column(
         modifier = Modifier.fillMaxSize()

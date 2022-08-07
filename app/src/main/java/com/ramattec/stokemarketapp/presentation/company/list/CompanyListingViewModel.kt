@@ -18,7 +18,7 @@ class CompanyListingViewModel @Inject constructor(
     private val repository: StockRepository
 ) : ViewModel() {
 
-    var state by mutableStateOf(CompanyListingState())
+    var uiState by mutableStateOf(CompanyListingState())
 
     private var searchJob: Job? = null
 
@@ -32,7 +32,7 @@ class CompanyListingViewModel @Inject constructor(
                 getCompanyListing(fetchFromRemote = true)
             }
             is CompanyListingEvent.OnSearchQueryCahnge -> {
-                state = state.copy(searchQuery = event.query)
+                uiState = uiState.copy(searchQuery = event.query)
                 searchJob?.cancel()
                 searchJob = viewModelScope.launch {
                     delay(500)
@@ -43,7 +43,7 @@ class CompanyListingViewModel @Inject constructor(
     }
 
     fun getCompanyListing(
-        query: String = state.searchQuery.lowercase(),
+        query: String = uiState.searchQuery.lowercase(),
         fetchFromRemote: Boolean = false
     ) {
         viewModelScope.launch {
@@ -52,12 +52,12 @@ class CompanyListingViewModel @Inject constructor(
                     when (result) {
                         is Outcome.Success -> {
                             result.data?.let {
-                                state = state.copy(companies = it)
+                                uiState = uiState.copy(companies = it)
                             }
                         }
                         is Outcome.Failure -> Unit
                         is Outcome.Loading -> {
-                            state = state.copy(isLoading = result.isLoading)
+                            uiState = uiState.copy(isLoading = result.isLoading)
                         }
                     }
                 }
