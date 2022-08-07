@@ -35,10 +35,10 @@ class IntraDayInfoParser @Inject constructor(): CSVParser<IntraDayInfo> {
 
                     val dto = IntraDayInfoDto(
                         timestamp = timestamp,
-                        close = close.toBigDecimal(),
-                        open = open.toBigDecimal(),
-                        low = low.toBigDecimal(),
-                        high = high.toBigDecimal(),
+                        close = close.toDouble(),
+                        open = open.toDouble(),
+                        low = low.toDouble(),
+                        high = high.toDouble(),
                         volume = volume.toLong()
                     )
                     dto.toIntraDayInfo()
