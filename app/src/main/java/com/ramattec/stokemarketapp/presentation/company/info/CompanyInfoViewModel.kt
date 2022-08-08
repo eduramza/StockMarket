@@ -51,7 +51,7 @@ class CompanyInfoViewModel @Inject constructor(
                     error = result.message
                 )
             }
-            is Outcome.Loading -> Unit
+            else -> Unit
         }
     }
 
@@ -71,7 +71,7 @@ class CompanyInfoViewModel @Inject constructor(
                     error = result.message
                 )
             }
-            is Outcome.Loading -> Unit
+            else -> Unit
         }
     }
 }
